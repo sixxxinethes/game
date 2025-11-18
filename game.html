@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🎮 Mini Game Hub</title>
+<link rel="stylesheet" href="game.css" />
+
+</head>
+<body>
+  <div class="container glass fade-in">
+    <h1 class="neon-title">🎮 Mini Game Hub</h1>
+    <p class="subtitle">Enter your name to save your score and pick a game!</p>
+
+    <input type="text" id="player-name" placeholder="Your name..." />
+
+    <ul class="game-list">
+      <li><a href="games/catch.html" target="_blank">⚪ Catch The Ball</a></li>
+      <li><a href="games/tictactoe.html" target="_blank">❌ Tic Tac Toe</a></li>
+      <li><a href="games/snake.html" target="_blank">🐍 Snake</a></li>
+      <li><a href="games/memory.html" target="_blank">🧠 Memory Match</a></li>
+    </ul>
+
+    <button class="menu-btn outline" onclick="showLeaderboard()">🏆 View Leaderboard</button>
+
+    <div id="leaderboard" class="hidden glass leaderboard">
+      <h2>🏆 Leaderboard</h2>
+      <ul id="leaderboard-list"></ul>
+      <button onclick="backToMenu()" class="menu-btn outline">Back</button>
+    </div>
+  </div>
+
+  <!-- Sounds -->
+  <audio id="click-sound" src="130365.mp3"></audio>
+  <script src="game.js"></script>
+</body>
+</html>
