@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🐍 Snake</title>
+ <link rel="stylesheet" href="../game.css" />
+
+</head>
+<body>
+  <div class="container glass">
+    <h2>🐍 Snake Game</h2>
+    <div id="game-area" class="game-area"></div>
+
+    <!-- Touch Controls -->
+    <div class="controls">
+      <button id="up">↑</button>
+      <button disabled></button>
+      <button id="right">→</button>
+      <button id="left">←</button>
+      <button disabled></button>
+      <button id="down">↓</button>
+    </div>
+  </div>
+
+  <script>
+    const playerName = localStorage.getItem("currentPlayer") || "Guest";
+    const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+
+    const gameArea = document.getElementById("game-area");
+    const header = document.createElement("div");
+    header.className = "game-header";
+    header.innerHTML = `<div>👤 ${playerName}</div><div>🏆 <span id='score'>0</span></div>`;
+    gameArea.appendChild(header);
+
+    const canvas = document.createElement("canvas");
+    const ctx = canvas.getContext("2d");
+    canvas.width = 400;
+    canvas.height = 360;
+    gameArea.appendChild(canvas);
+
+    // Responsive canvas
+    function resizeCanvas() {
+      if (window.innerWidth < 500) {
+        canvas.width = 320;
+        canvas.height = 280;
+      } else {
+        canvas.width = 400;
+        canvas.height = 360;
+      }
+    }
+    resizeCanvas();
+    window.addEventListener("resize", resizeCanvas);
+
+    let box = 20, score = 0;
+    let snake = [{ x: 200, y: 200 }];
+    let direction = "RIGHT";
+    let food = randomFood();
+
+    document.onkeydown = e => {
+      if (e.key === "ArrowLeft" && direction !== "RIGHT") direction = "LEFT";
+      if (e.key === "ArrowUp" && direction !== "DOWN") direction = "UP";
+      if (e.key === "ArrowRight" && direction !== "LEFT") direction = "RIGHT";
+      if (e.key === "ArrowDown" && direction !== "UP") direction = "DOWN";
+    };
+
+    // Touch buttons
+    document.getElementById("up").onclick = () => { if (direction!=="DOWN") direction="UP"; };
+    document.getElementById("down").onclick = () => { if (direction!=="UP") direction="DOWN"; };
+    document.getElementById("left").onclick = () => { if (direction!=="RIGHT") direction="LEFT"; };
+    document.getElementById("right").onclick = () => { if (direction!=="LEFT") direction="RIGHT"; };
+
+    const game = setInterval(draw, 120);
+
+    function draw() {
+      ctx.fillStyle = "rgba(255,255,255,0.05)";
+      ctx.fillRect(0,0,canvas.width,canvas.height);
+
+      snake.forEach((s,i)=>{
+        ctx.fillStyle = i===0 ? "#00f5ff" : "#0072ff";
+        ctx.fillRect(s.x,s.y,box,box);
+      });
+
+      ctx.fillStyle = "#ff4757";
+      ctx.fillRect(food.x, food.y, box, box);
+
+      let headX = snake[0].x, headY = snake[0].y;
+      if (direction==="LEFT") headX-=box;
+      if (direction==="RIGHT") headX+=box;
+      if (direction==="UP") headY-=box;
+      if (direction==="DOWN") headY+=box;
+
+      if (headX===food.x && headY===food.y) {
+        score++;
+        document.getElementById("score").textContent = score;
+        food = randomFood();
+      } else snake.pop();
+
+      const newHead = {x:headX,y:headY};
+      if (headX<0||headY<0||headX>=canvas.width||headY>=canvas.height||collision(newHead,snake)){
+        clearInterval(game);
+        leaderboard.push({ name: playerName, game: "Snake", score });
+        localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+        alert(`Game Over! Score: ${score}`);
+        window.close();
+      }
+      snake.unshift(newHead);
+    }
+
+    function randomFood(){
+      return {
+        x: Math.floor(Math.random() * (canvas.width / box)) * box,
+        y: Math.floor(Math.random() * (canvas.height / box)) * box
+      };
+    }
+
+    function collision(head,arr){
+      return arr.some(s=>s.x===head.x&&s.y===head.y);
+    }
+  </script>
+</body>
+</html>

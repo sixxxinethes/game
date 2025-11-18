@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🧠 Memory Match</title>
+ <link rel="stylesheet" href="../game.css" />
+
+</head>
+<body>
+  <div class="container glass">
+    <h2>🧠 Memory Match</h2>
+    <div id="game-area" class="game-area"></div>
+  </div>
+
+  <script>
+    const playerName = localStorage.getItem("currentPlayer") || "Guest";
+    const leaderboard = JSON.parse(localStorage.getItem("leaderboard")) || [];
+    const gameArea = document.getElementById("game-area");
+
+    const header = document.createElement("div");
+    header.className = "game-header";
+    header.innerHTML = `<div>👤 ${playerName}</div><div>🏆 <span id='score'>0</span></div>`;
+    gameArea.appendChild(header);
+
+    const symbols = ["🍎","🍎","🚗","🚗","🐱","🐱","⚽","⚽","🎵","🎵","💎","💎"];
+    const shuffled = symbols.sort(()=>0.5-Math.random());
+    const grid = document.createElement("div");
+    grid.style.display="grid";
+    grid.style.gridTemplateColumns="repeat(4,1fr)";
+    grid.style.gap="10px";
+    grid.style.width="300px";
+    grid.style.margin="20px auto";
+    gameArea.appendChild(grid);
+
+    let first=null, lock=false, matches=0, score=0;
+
+    shuffled.forEach(icon=>{
+      const card=document.createElement("div");
+      card.className="memory-card";
+      card.textContent="❓";
+      card.onclick=()=>{
+        if(lock || card.textContent!== "❓") return;
+        card.textContent=icon;
+        if(!first){ first=card; }
+        else {
+          if(first.dataset.icon===icon){
+            matches++; score+=10;
+            document.getElementById("score").textContent=score;
+            first=null;
+            if(matches===symbols.length/2){
+              leaderboard.push({ name: playerName, game: "Memory Match", score });
+              localStorage.setItem("leaderboard", JSON.stringify(leaderboard));
+              alert(`All matched! Score: ${score}`);
+              window.close();
+            }
+          } else {
+            lock=true;
+            setTimeout(()=>{
+              first.textContent="❓"; card.textContent="❓";
+              first=null; lock=false;
+            },800);
+          }
+        }
+      };
+      card.dataset.icon=icon;
+      grid.appendChild(card);
+    });
+  </script>
+</body>
+</html>
